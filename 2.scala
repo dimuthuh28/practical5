@@ -1,82 +1,56 @@
-import scala.collection.mutable
+case class Book(title: String, author: String, isbn:String)
 
-class Book(val title: String, val author: String, val isbn: String) {
-  override def toString: String = s"Book($title, $author, $isbn)"
-}
+object LibraryManagement{
+    var library: Set[Book]=Set(
+        Book("A", "Kamal Gunaratne","978-3-16-148410-1"),
+        Book("B", "Saman Kumara", "978-3-16-148410-2"),
+        Book("C", "Susantha Susantha", "978-3-16-148410-3")
+    )
 
-object BookStore {
-  var books: mutable.Set[Book] = mutable.Set()
-
-  def addNewBook(title: String, author: String, isbn: String): Unit = {
-    val newBook = new Book(title, author, isbn)
-    books += newBook
-    println(s"Added new book: $newBook")
-  }
-
-  def removeBook(isbn: String): Unit = {
-      val bookToRemove = books.find(_.isbn == isbn)
-      if (bookToRemove.isDefined) {
-        books -= bookToRemove.get
-        println(s"Removed book: $bookToRemove")
-      } else {
-        println(s"No book found with ISBN: $isbn")
-      }
+    def addBook(book: Book): Unit={
+        library+=book
     }
 
-  def searchBook(isbn: String): Unit = {
-    books.find(_.isbn == isbn) match {
-      case Some(book) =>
-        println(s"Found book: ${book.title} - ${book.author} - ${book.isbn}")
-      case None =>
-        println(s"No book found with ISBN: $isbn")
-    }
-  }
-
-  def printAllBooks(): Unit = {
-    var index = 1
-    for (book <- books) {
-      println(s"$index. ${book.title} - ${book.author} - ${book.isbn}")
-      index += 1
-    }
-  }
-
-  def main(args: Array[String]): Unit = {
-
-    addNewBook("A", "Kamal Gunaratne", "978-3-16-148410-0")
-    addNewBook("B", "Saman Kumara", "978-3-16-148410-1")
-    addNewBook("C", "Susantha Susantha", "978-3-16-148410-2")
-
-    def printAllBooks(): Unit = {
-      books.zipWithIndex.foreach { case (book, index) =>
-        println(s"${index + 1}. ${book.title} - ${book.author} - ${book.isbn}")
-      }
+    def removeBook(isbn: String):Unit={
+        library=library.filterNot(_.isbn==isbn)
     }
 
-    def searchByTitle(title: String): Unit = {
-      val foundBooks = books.filter(_.title == title)
-      if (foundBooks.nonEmpty) {
-        foundBooks.foreach(book => println(s"Found book: ${book.title} - ${book.author} - ${book.isbn}"))
-      } else {
-        println(s"No book found with title '$title'")
-      }
+    def isBookInLibrary(isbn: String):Boolean={
+        library.exists(_.isbn==isbn)
     }
 
-    def searchBooksByAuthor(author: String): Unit = {
-      val foundBooks = books.filter(_.author == author)
-      if (foundBooks.nonEmpty) {
-        println(s"Books by author '$author':")
-        foundBooks.foreach(book => println(s"${book.title} - ${book.author} - ${book.isbn}"))
-      } else {
-        println(s"No books found by author '$author'")
-      }
+    def displayLibrary(): Unit={
+        library.foreach(book=>println(s"Title:${book.title}, Author: ${book.author}, ISBN: ${book.isbn}"))
     }
-    
-    printAllBooks()
 
-    searchBook("978-3-16-148410-1")
+    def findBookTitle(title:String): Option[Book]={
+        library.find(_.title.toLowerCase==title.toLowerCase)
+    }
 
-    removeBook("978-3-16-148410-2")
+    def displayBook(author:String): Unit={
+        library.filter(_.author.toLowerCase==author.toLowerCase).foreach(book=>println(s"Title: ${book.title}, ISBN: ${book.isbn}"))
+    }
 
-    printAllBooks()
+    def main(args: Array[String]): Unit = {
+        println("Initial Library Collection:")
+        displayLibrary()
+
+        println("\nAdd new book")
+        val newBook = Book("D", "Kavindu", "978-3-16-148410-4")
+        addBook(newBook)
+        displayLibrary()
+
+        println("\nRemove book")
+        removeBook("978-3-16-148410-2")
+        displayLibrary()
+
+        println("\nCheck if a Book is in the Library by ISBN (978-3-16-148410-3):")
+        println(isBookInLibrary("978-3-16-148410-3"))
+
+        println("\nSearch for a Book by Title:")
+        findBookTitle("C").foreach(book => println(s"Found: Title: ${book.title}, Author: ${book.author}, ISBN: ${book.isbn}"))
+
+        println("\nDisplay Books by Saman Kumara:")
+        displayBook("Saman Kumara")
   }
 }
